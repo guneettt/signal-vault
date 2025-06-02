@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Matches in {{ filename }}</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #fefefe;
+      color: #222;
+      margin: 2rem;
+    }
+    .back-link {
+      color: #1dbf73;
+      text-decoration: none;
+      display: inline-block;
+      margin-bottom: 1.2rem;
+    }
+    .back-link:hover {
+      text-decoration: underline;
+    }
+    .snippet-box {
+      background: #fff;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      border-left: 4px solid #1dbf73;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    }
+    .highlight {
+      background-color: #ffff66;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <a href="/" class="back-link">← Back to search</a>
+  <h2>🧠 Matches in <code>{{ filename }}</code></h2>
+  <p>Results for: <strong>{{ query }}</strong></p>
+
+  {% for snippet in snippets %}
+    <div class="snippet-box">
+      {{ snippet | replace(query, "<span class='highlight'>" ~ query ~ "</span>") | safe }}
+    </div>
+  {% endfor %}
+
+  {% if not snippets %}
+    <p>❌ No matches found in this file.</p>
+  {% endif %}
+</body>
+</html>
