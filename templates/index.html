@@ -1,117 +1,125 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>SignalVault Search</title>
-    <style>
-  body {
-    font-family: 'Inter', sans-serif;
-    background-color: #f0f2f5;
-    color: #222;
-    margin: 0;
-    padding: 2rem;
-  }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SignalVault Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #111;
+      --card: #1c1c1c;
+      --accent: #1dbf73;
+      --text: #f5f5f5;
+      --muted: #888;
+      --radius: 14px;
+    }
 
-  h1 {
-    font-size: 2.2rem;
-    margin-bottom: 1.5rem;
-    color: #1dbf73;
-  }
+    body {
+      margin: 0;
+      padding: 24px;
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+    }
 
-  form {
-    display: flex;
-    align-items: center;
-    margin-bottom: 2rem;
-  }
+    h1 {
+      font-size: 2.2rem;
+      color: var(--accent);
+      margin-bottom: 1.5rem;
+    }
 
-  input[type="text"] {
-    width: 100%;
-    padding: 12px 16px;
-    font-size: 1rem;
-    border: 2px solid #ddd;
-    border-radius: 8px 0 0 8px;
-    outline: none;
-    transition: border-color 0.3s;
-  }
+    .search-box {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 2rem;
+    }
 
-  input[type="text"]:focus {
-    border-color: #1dbf73;
-  }
+    input[type="text"] {
+      flex: 1;
+      padding: 14px 18px;
+      font-size: 1rem;
+      background-color: #2a2a2a;
+      color: var(--text);
+      border: none;
+      border-radius: var(--radius);
+    }
 
-  button {
-    padding: 12px 20px;
-    font-size: 1rem;
-    background-color: #1dbf73;
-    color: white;
-    border: none;
-    border-radius: 0 8px 8px 0;
-    cursor: pointer;
-    transition: background-color 0.3s;
-  }
+    button {
+      background-color: var(--accent);
+      border: none;
+      color: #000;
+      font-weight: 600;
+      padding: 14px 22px;
+      border-radius: var(--radius);
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
 
-  button:hover {
-    background-color: #18a463;
-  }
+    button:hover {
+      background-color: #14a362;
+    }
 
-  .result {
-    background-color: white;
-    border-left: 5px solid #1dbf73;
-    border-radius: 6px;
-    padding: 1rem;
-    margin-bottom: 1.2rem;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-  }
+    .results {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
 
-  .result-title {
-    font-weight: 600;
-    font-size: 1.1rem;
-    color: #1dbf73;
-    text-decoration: none;
-  }
+    .card {
+      background-color: var(--card);
+      border-radius: var(--radius);
+      padding: 16px 20px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.35);
+    }
 
-  .result-title:hover {
-    text-decoration: underline;
-  }
+    .card a {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 600;
+    }
 
-  .score {
-    font-size: 0.9rem;
-    color: #666;
-    margin-top: 0.3rem;
-  }
+    .score {
+      font-size: 0.95rem;
+      color: var(--muted);
+      margin: 6px 0 12px;
+    }
 
-  .snippet {
-    margin-top: 0.6rem;
-    font-style: italic;
-    color: #444;
-  }
-</style>
+    .snippet {
+      font-size: 0.95rem;
+      color: #ccc;
+      line-height: 1.4;
+    }
 
+    .muted {
+      font-size: 0.9rem;
+      color: var(--muted);
+      margin-top: 1rem;
+    }
+  </style>
 </head>
-<link rel="icon" href="https://em-content.zobj.net/source/microsoft-teams/337/magnifying-glass-tilted-left_1f50d.png">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
 <body>
   <h1>🔍 SignalVault</h1>
-  <form method="POST">
-    <input type="text" name="query" placeholder="Enter keywords..." value="{{ query }}" required>
+  <form method="POST" class="search-box">
+    <input type="text" name="query" placeholder="Search your cached docs..." value="{{ query|e }}" required />
     <button type="submit">Search</button>
   </form>
 
-  {% if results %}
-    <h3>📂 Results for '{{ query }}':</h3>
-    {% for r in results %}
-      <div class="result">
-        <a class="result-title" href="{{ url_for('view_file', filename=r.filename) }}?query={{ query }}">
-            📄 {{ r.filename }}
-        </a>
-
-        <div class="score">Score: {{ r.score }}</div>
-        {% if r.snippet %}
-             <div class="snippet">➤ {{ r.snippet }}</div>
-        {% endif %}
+  {% if query %}
+    <div class="muted">🔎 Results for '<strong>{{ query }}</strong>':</div>
+    <div class="results">
+      {% for result in results %}
+        <div class="card">
+          <div><a href="{{ url_for('view_file', filename=result.filename, query=query) }}" target="_blank">📄 {{ result.filename }}</a></div>
+          <div class="score">Score: {{ result.score }}</div>
+          <div class="snippet">&gt; {{ result.snippet }}</div>
+        </div>
+      {% endfor %}
+      {% if results|length == 0 %}
+        <div class="muted">❌ No matching documents found.</div>
+      {% endif %}
     </div>
-
-    {% endfor %}
-  {% elif query %}
-    <p>❌ No results found for '{{ query }}'</p>
   {% endif %}
 </body>
 </html>

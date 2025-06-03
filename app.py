@@ -1,12 +1,13 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, url_for
 from index.search_engine import build_tf_idf_index, compute_tfidf_scores, get_snippet
 from markupsafe import escape
 
 app = Flask(__name__)
 
-# Build index once at startup
+# 🔁 Build TF-IDF index once at startup
 tf_index, df_counts, total_docs, file_texts = build_tf_idf_index()
 
+# 🏠 Homepage — handles search
 @app.route('/', methods=['GET', 'POST'])
 def home():
     results = []
@@ -26,6 +27,7 @@ def home():
 
     return render_template('index.html', query=query, results=results)
 
+# 📄 File viewer — match query snippets or full content
 @app.route('/view/<path:filename>')
 def view_file(filename):
     query = request.args.get('query', '')
@@ -58,8 +60,13 @@ def view_file(filename):
             snippets=matched_snippets
         )
 
-    # fallback — show full content
+    # 🔄 Fallback — show full content if no query
     return render_template('view.html', filename=filename, content=content)
+
+# 🧪 Optional debug test route
+@app.route('/dashboard')
+def dashboard():
+    return render_template('view.html')
 
 if __name__ == '__main__':
     app.run(debug=True)
