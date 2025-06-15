@@ -1,14 +1,14 @@
-from flask import Flask, render_template, request, url_for, jsonify
+from flask import Flask, request, jsonify
 from flask_cors import CORS
 from index.search_engine import build_tf_idf_index, compute_tfidf_scores, get_snippet
-from markupsafe import escape
 
 app = Flask(__name__)
-CORS(app)  # ✅ enable cross-origin requests
+CORS(app)
 
-# Index on startup
+# ✅ Build search index once
 tf_index, df_counts, total_docs, file_texts = build_tf_idf_index()
 
+# ✅ Emergency guide dictionary
 EMERGENCY_GUIDES = {
     "stuck in flood": [
         "Move to higher ground immediately.",
@@ -40,7 +40,7 @@ EMERGENCY_GUIDES = {
     ],
     "fire in building": [
         "Stay low to avoid smoke inhalation.",
-        "Check door handles with the back of your hand before opening.",
+        "Check door handles before opening.",
         "If trapped, signal from windows using cloth or light.",
         "Stop, Drop, and Roll if clothes catch fire.",
         "Never use elevators during a fire."
@@ -69,114 +69,51 @@ EMERGENCY_GUIDES = {
 }
 
 
-@app.route('/', methods=['POST', 'GET'])
-def home():
-    results = []
-    query = ""
-
-    # ✅ React JSON POST request
-    if request.content_type == 'application/json':
-        print("🟡 Received JSON POST request")
-        try:
-            data = request.get_json(force=True)
-            print("📦 Parsed JSON:", data)
-        except Exception as e:
-            print("❌ Failed to parse JSON:", str(e))
-            return jsonify({ "error": "Malformed JSON" }), 400
-
-        if not data:
-            print("❌ No data in JSON")
-            return jsonify({ "error": "Empty JSON" }), 400
+@app.route("/", methods=["POST"])
+def search():
+    try:
+        data = request.get_json(force=True)
+        print("✅ Received:", data)
 
         query = data.get("query", "").strip()
-        print("🔍 Query received:", query)
+        if not query:
+            return jsonify({"error": "Empty query"}), 400
 
-        if query:
-            lower_query = query.lower()
-            if lower_query in EMERGENCY_GUIDES:
-                print("🚨 Emergency protocol match found")
-                return jsonify({
-                    "emergency": True,
-                    "query": query,
-                    "checklist": EMERGENCY_GUIDES[lower_query]
-                })
+        lower_query = query.lower()
 
-            print("🔎 Performing TF-IDF search")
-            scored = compute_tfidf_scores(query, tf_index, df_counts, total_docs)
-            for filename, score in scored:
-                snippet = get_snippet(file_texts[filename], query)
-                results.append({
-                    'filename': filename,
-                    'score': round(score, 4),
-                    'snippet': snippet
-                })
+        # ✅ EMERGENCY CHECK
+        if lower_query in EMERGENCY_GUIDES:
+            print("🚨 Emergency match")
+            return jsonify({
+                "emergency": True,
+                "query": query,
+                "checklist": EMERGENCY_GUIDES[lower_query]
+            })
 
-        print(f"✅ Returning {len(results)} results")
+        # ✅ DOCUMENT SEARCH
+        print("🔎 Performing TF-IDF search...")
+        results = []
+        scored = compute_tfidf_scores(query, tf_index, df_counts, total_docs)
+
+        for filename, score in scored:
+            snippet = get_snippet(file_texts[filename], query)
+            results.append({
+                "filename": filename,
+                "score": round(score, 4),
+                "snippet": snippet
+            })
+
+        print(f"✅ Found {len(results)} results")
         return jsonify({
             "emergency": False,
             "query": query,
             "results": results
         })
 
-    # 🖥️ Legacy HTML form POST
-    if request.method == 'POST':
-        query = request.form.get('query', '').strip()
-        if query:
-            lower_query = query.lower()
-            if lower_query in EMERGENCY_GUIDES:
-                return render_template('emergency.html', query=query, checklist=EMERGENCY_GUIDES[lower_query])
-
-            scored = compute_tfidf_scores(query, tf_index, df_counts, total_docs)
-            for filename, score in scored:
-                snippet = get_snippet(file_texts[filename], query)
-                results.append({
-                    'filename': filename,
-                    'score': round(score, 4),
-                    'snippet': snippet
-                })
-
-    return render_template('index.html', query=query, results=results)
+    except Exception as e:
+        print("❌ ERROR:", str(e))
+        return jsonify({"error": str(e)}), 500
 
 
-@app.route('/view/<path:filename>')
-def view_file(filename):
-    query = request.args.get('query', '')
-    filename = escape(filename)
-    content = file_texts.get(filename)
-
-    if not content:
-        return f"<h2>❌ File '{filename}' not found or unreadable.</h2>", 404
-
-    if query:
-        keywords = query.lower().split()
-        words = content.split()
-        lower_words = [w.lower() for w in words]
-        matched_snippets = []
-
-        for keyword in keywords:
-            idx = 0
-            while keyword in lower_words[idx:]:
-                i = lower_words.index(keyword, idx)
-                start = max(0, i - 20)
-                end = min(len(words), i + 21)
-                snippet = ' '.join(words[start:end])
-                matched_snippets.append(snippet)
-                idx = i + 1
-
-        return render_template(
-            'view_snippets.html',
-            filename=filename,
-            query=query,
-            snippets=matched_snippets
-        )
-
-    return render_template('view.html', filename=filename, content=content)
-
-
-@app.route('/dashboard')
-def dashboard():
-    return render_template('view.html')
-
-
-if __name__ == '__main__':
-    app.run(debug=True)
+if __name__ == "__main__":
+    app.run(debug=True, port=5050)
