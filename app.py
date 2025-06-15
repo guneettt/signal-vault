@@ -1,13 +1,14 @@
-from flask import Flask, render_template, request, url_for
+from flask import Flask, render_template, request, url_for, jsonify
+from flask_cors import CORS
 from index.search_engine import build_tf_idf_index, compute_tfidf_scores, get_snippet
 from markupsafe import escape
 
 app = Flask(__name__)
+CORS(app)  # ✅ enable cross-origin requests
 
-# 🔁 Build TF-IDF index once at startup
+# Index on startup
 tf_index, df_counts, total_docs, file_texts = build_tf_idf_index()
 
-# 🆘 Emergency protocols
 EMERGENCY_GUIDES = {
     "stuck in flood": [
         "Move to higher ground immediately.",
@@ -30,13 +31,6 @@ EMERGENCY_GUIDES = {
         "Use an automated external defibrillator (AED) if available.",
         "Place in recovery position if breathing resumes and wait for help."
     ],
-    "trapped under rubble": [
-        "Protect your head and breathing with cloth or clothing.",
-        "Tap on a pipe or wall to alert rescuers, do not shout to conserve oxygen.",
-        "Stay still to avoid stirring dust or causing further collapse.",
-        "Cover your mouth with cloth to filter debris.",
-        "Conserve battery if using a phone; only text or call for help when needed."
-    ],
     "earthquake": [
         "Drop, Cover, and Hold On under sturdy furniture.",
         "Stay away from windows, mirrors, and heavy objects.",
@@ -50,6 +44,13 @@ EMERGENCY_GUIDES = {
         "If trapped, signal from windows using cloth or light.",
         "Stop, Drop, and Roll if clothes catch fire.",
         "Never use elevators during a fire."
+    ],
+    "trapped under rubble": [
+        "Protect your head and breathing with cloth or clothing.",
+        "Tap on a pipe or wall to alert rescuers, do not shout to conserve oxygen.",
+        "Stay still to avoid stirring dust or causing further collapse.",
+        "Cover your mouth with cloth to filter debris.",
+        "Conserve battery if using a phone; only text or call for help when needed."
     ],
     "injured with bleeding": [
         "Apply firm pressure with a clean cloth or bandage.",
@@ -67,22 +68,64 @@ EMERGENCY_GUIDES = {
     ]
 }
 
-# 🏠 Homepage — handles search and emergencies
-@app.route('/', methods=['GET', 'POST'])
+
+@app.route('/', methods=['POST', 'GET'])
 def home():
     results = []
     query = ""
 
+    # ✅ React JSON POST request
+    if request.content_type == 'application/json':
+        print("🟡 Received JSON POST request")
+        try:
+            data = request.get_json(force=True)
+            print("📦 Parsed JSON:", data)
+        except Exception as e:
+            print("❌ Failed to parse JSON:", str(e))
+            return jsonify({ "error": "Malformed JSON" }), 400
+
+        if not data:
+            print("❌ No data in JSON")
+            return jsonify({ "error": "Empty JSON" }), 400
+
+        query = data.get("query", "").strip()
+        print("🔍 Query received:", query)
+
+        if query:
+            lower_query = query.lower()
+            if lower_query in EMERGENCY_GUIDES:
+                print("🚨 Emergency protocol match found")
+                return jsonify({
+                    "emergency": True,
+                    "query": query,
+                    "checklist": EMERGENCY_GUIDES[lower_query]
+                })
+
+            print("🔎 Performing TF-IDF search")
+            scored = compute_tfidf_scores(query, tf_index, df_counts, total_docs)
+            for filename, score in scored:
+                snippet = get_snippet(file_texts[filename], query)
+                results.append({
+                    'filename': filename,
+                    'score': round(score, 4),
+                    'snippet': snippet
+                })
+
+        print(f"✅ Returning {len(results)} results")
+        return jsonify({
+            "emergency": False,
+            "query": query,
+            "results": results
+        })
+
+    # 🖥️ Legacy HTML form POST
     if request.method == 'POST':
         query = request.form.get('query', '').strip()
         if query:
             lower_query = query.lower()
-
-            # 🆘 Emergency Scenario Detected
             if lower_query in EMERGENCY_GUIDES:
                 return render_template('emergency.html', query=query, checklist=EMERGENCY_GUIDES[lower_query])
 
-            # 🧠 Normal document search
             scored = compute_tfidf_scores(query, tf_index, df_counts, total_docs)
             for filename, score in scored:
                 snippet = get_snippet(file_texts[filename], query)
@@ -94,7 +137,7 @@ def home():
 
     return render_template('index.html', query=query, results=results)
 
-# 📄 File viewer — match query snippets or full content
+
 @app.route('/view/<path:filename>')
 def view_file(filename):
     query = request.args.get('query', '')
@@ -127,13 +170,13 @@ def view_file(filename):
             snippets=matched_snippets
         )
 
-    # 🔄 Fallback — show full content if no query
     return render_template('view.html', filename=filename, content=content)
 
-# 🧪 Optional debug test route
+
 @app.route('/dashboard')
 def dashboard():
     return render_template('view.html')
+
 
 if __name__ == '__main__':
     app.run(debug=True)
