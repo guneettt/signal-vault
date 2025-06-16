@@ -1,10 +1,13 @@
 import React, { useState } from "react";
 import "./App.css";
+import { BrowserRouter as Router, Routes, Route, useNavigate } from "react-router-dom";
+import FlowChart from "./FlowChart";
 
-function App() {
+function Dashboard() {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState([]);
   const [status, setStatus] = useState("Try typing a medical emergency keyword.");
+  const navigate = useNavigate();
 
   const handleSearch = async (e) => {
     if (e) e.preventDefault();
@@ -17,11 +20,10 @@ function App() {
       const response = await fetch("http://localhost:5050/", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify({ query })
+        body: JSON.stringify({ query }),
       });
-
 
       if (!response.ok) throw new Error("Non-200 response");
 
@@ -34,11 +36,12 @@ function App() {
             filename: `Emergency Step #${i + 1}`,
             score: "",
             snippet: tip,
+            isEmergency: true,
           }))
         );
       } else {
         setStatus(`Showing results for "${data.query}"`);
-        setResults(data.results);
+        setResults(data.results.map((r) => ({ ...r, isEmergency: false })));
       }
     } catch (err) {
       console.error("Error:", err);
@@ -52,11 +55,18 @@ function App() {
     "stuck in flood",
     "unclear breathing",
     "fire in building",
+    "trapped under rubble",
+    "injured with bleeding",
+    "lost in forest",
   ];
 
   const handleEmergencyClick = (term) => {
     setQuery(term);
-    setTimeout(() => handleSearch(), 100); // ensure query is updated before sending
+    setTimeout(() => handleSearch(), 100);
+  };
+
+  const handleResultClick = (filename) => {
+    navigate(`/flow/${encodeURIComponent(filename)}?query=${encodeURIComponent(query)}`);
   };
 
   return (
@@ -77,8 +87,13 @@ function App() {
       <div className="main-content">
         <div className="results">
           {results.map((res, idx) => (
-            <div className="result-card" key={idx}>
-              <h3>📄 {res.filename}</h3>
+            <div
+              className="result-card"
+              key={idx}
+              onClick={() => !res.isEmergency && handleResultClick(res.filename)}
+              style={{ cursor: res.isEmergency ? "default" : "pointer" }}
+            >
+              <h3>{res.isEmergency ? "🚑" : "📄"} {res.filename}</h3>
               {res.score && <p className="score">Score: {res.score}</p>}
               <p className="snippet">{res.snippet}</p>
             </div>
@@ -99,6 +114,17 @@ function App() {
         </div>
       </div>
     </div>
+  );
+}
+
+function App() {
+  return (
+    <Router>
+      <Routes>
+        <Route path="/" element={<Dashboard />} />
+        <Route path="/flow/:filename" element={<FlowChart />} />
+      </Routes>
+    </Router>
   );
 }
 

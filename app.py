@@ -1,6 +1,11 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
 from index.search_engine import build_tf_idf_index, compute_tfidf_scores, get_snippet
+from urllib.parse import unquote
+from markupsafe import escape
+from nltk.tokenize import sent_tokenize
+import re
+from urllib.parse import unquote
 
 app = Flask(__name__)
 CORS(app)
@@ -68,7 +73,6 @@ EMERGENCY_GUIDES = {
     ]
 }
 
-
 @app.route("/", methods=["POST"])
 def search():
     try:
@@ -113,6 +117,86 @@ def search():
     except Exception as e:
         print("❌ ERROR:", str(e))
         return jsonify({"error": str(e)}), 500
+
+
+@app.route("/view/<path:filename>")
+def view_file(filename):
+    query = request.args.get('query', '')
+    filename = unquote(filename)
+    filename = escape(filename)
+    content = file_texts.get(filename)
+
+    if not content:
+        return f"<h2>❌ File '{filename}' not found or unreadable.</h2>", 404
+
+    if query:
+        keywords = query.lower().split()
+        words = content.split()
+        lower_words = [w.lower() for w in words]
+        matched_snippets = []
+
+        for keyword in keywords:
+            idx = 0
+            while keyword in lower_words[idx:]:
+                i = lower_words.index(keyword, idx)
+                start = max(0, i - 20)
+                end = min(len(words), i + 21)
+                snippet = ' '.join(words[start:end])
+                matched_snippets.append(snippet)
+                idx = i + 1
+
+        return render_template(
+            'view_snippets.html',
+            filename=filename,
+            query=query,
+            snippets=matched_snippets
+        )
+
+    return render_template('view_snippets.html', filename=filename, query=query, snippets=[])
+
+@app.route("/api/flow/<path:filename>")
+def flow_json(filename):
+    query = request.args.get("query", "")
+    filename = unquote(filename)
+
+    content = file_texts.get(filename)
+    if not content:
+        return jsonify({"error": "File not found"}), 404
+
+    keywords = query.lower().split()
+    words = content.split()
+    lower_words = [w.lower() for w in words]
+    matched_snippets = []
+
+    for keyword in keywords:
+        idx = 0
+        while keyword in lower_words[idx:]:
+            i = lower_words.index(keyword, idx)
+            start = max(0, i - 20)
+            end = min(len(words), i + 21)
+            snippet = ' '.join(words[start:end])
+            matched_snippets.append(snippet)
+            idx = i + 1
+
+    # 🔍 Combine + tokenize
+    combined_text = " ".join(matched_snippets)
+    sentences = sent_tokenize(combined_text)
+
+    # 🎯 Extract relevant flow steps (e.g., commands, procedures)
+    important_steps = []
+    for s in sentences:
+        s_clean = re.sub(r'\s+', ' ', s).strip()
+        if len(s_clean) < 30 or len(s_clean) > 220:
+            continue  # remove too short or too long
+        if re.search(r"\b(apply|check|call|clean|cover|move|remove|perform|place|stay|protect|signal|monitor|keep|treat)\b", s_clean, re.IGNORECASE):
+            important_steps.append(s_clean)
+
+    # ✅ Return JSON
+    return jsonify({
+        "filename": filename,
+        "query": query,
+        "steps": important_steps[:10]  # limit for now
+    })
 
 
 if __name__ == "__main__":

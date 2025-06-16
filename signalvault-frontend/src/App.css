@@ -112,3 +112,13 @@ h1 {
   cursor: pointer;
   text-align: left;
 }
+
+.file-link {
+  text-decoration: none;
+  color: inherit;
+}
+
+.file-link:hover h3 {
+  text-decoration: underline;
+  color: #1d4ed8;
+}
