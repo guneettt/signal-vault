@@ -41,7 +41,11 @@ function Dashboard() {
         );
       } else {
         setStatus(`Showing results for "${data.query}"`);
-        setResults(data.results.map((r) => ({ ...r, isEmergency: false })));
+        const filtered = data.results
+          .filter(r => r.flowstep_count && r.flowstep_count > 0)
+          .map(r => ({ ...r, isEmergency: false }));
+
+        setResults(filtered);
       }
     } catch (err) {
       console.error("Error:", err);
