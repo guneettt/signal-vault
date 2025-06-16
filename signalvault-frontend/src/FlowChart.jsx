@@ -26,27 +26,39 @@ const FlowChart = () => {
           return;
         }
 
+        const stepEmojis = ["🧠", "🧼", "🧯", "🩹", "📞", "🛟", "🚑", "✅"];
+
         const newNodes = data.steps.map((step, i) => ({
-          id: `node-${i}`,
-          data: { label: step },
-          position: { x: 250, y: i * 120 },
-          style: {
-            padding: "10px 14px",
-            borderRadius: "10px",
-            border: "1px solid #3b82f6",
-            background: "#fff",
-            color: "#1e293b",
-            fontSize: "0.95rem",
-          }
+            id: `node-${i}`,
+            data: { label: `${stepEmojis[i % stepEmojis.length] || "➡️"} Step ${i + 1}: ${step}` },
+            position: { x: i * 420, y: 0 }, // precise horizontal line
+            style: {
+                width: 360,
+                padding: "16px",
+                borderRadius: 14,
+                border: "2px solid #3b82f6",
+                background: "#ffffff",
+                color: "#1e293b",
+                fontSize: "1rem",
+                fontWeight: 500,
+                textAlign: "left",
+                lineHeight: 1.6,
+                boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+            }
         }));
 
+
+
+
         const newEdges = data.steps.slice(1).map((_, i) => ({
-          id: `edge-${i}`,
-          source: `node-${i}`,
-          target: `node-${i + 1}`,
-          animated: true,
-          style: { stroke: "#3b82f6" },
-        }));
+            id: `edge-${i}`,
+            source: `node-${i}`,
+            target: `node-${i + 1}`,
+            animated: true,
+            type: "smoothstep",
+            style: { stroke: "#3b82f6" },
+            }));
+
 
         setNodes(newNodes);
         setEdges(newEdges);
@@ -60,18 +72,62 @@ const FlowChart = () => {
     fetchData();
   }, [filename, query]);
 
-  return (
-    <div style={{ height: "100vh", background: "#f1f5f9" }}>
-      {loading ? (
-        <p style={{ padding: "2rem", textAlign: "center" }}>Loading flow...</p>
-      ) : (
-        <ReactFlow nodes={nodes} edges={edges} fitView>
-          <Background gap={20} />
-          <Controls />
-        </ReactFlow>
-      )}
+return (
+  <div style={{ height: "100vh", width: "100%", background: "#f9fbff", overflowX: "auto" }}>
+    <h2 style={{
+      textAlign: "center",
+      marginBottom: "1.5rem",
+      fontSize: "1.8rem",
+      color: "#1d4ed8"
+    }}>
+      🧠 Emergency Flow Summary
+    </h2>
+
+    <div style={{
+      minWidth: `${nodes.length * 420}px`,
+      height: "70vh",
+      paddingBottom: "2rem"
+    }}>
+      <ReactFlow
+        nodes={nodes}
+        edges={edges}
+        fitView
+        nodesDraggable={false}
+        panOnScroll
+        zoomOnScroll
+        fitViewOptions={{ padding: 0.5 }}
+        defaultEdgeOptions={{
+          animated: true,
+          type: "smoothstep",
+          markerEnd: { type: "arrowclosed" },
+          style: { stroke: "#3b82f6" }
+        }}
+      >
+        <Background gap={24} />
+        <Controls />
+      </ReactFlow>
     </div>
-  );
+
+    <div style={{ textAlign: "center", marginTop: "2rem" }}>
+      <a
+        href="/"
+        style={{
+          padding: "0.6rem 1.2rem",
+          background: "#2563eb",
+          color: "#ffffff",
+          borderRadius: "8px",
+          fontWeight: 500,
+          textDecoration: "none",
+          boxShadow: "0 2px 6px rgba(0,0,0,0.1)"
+        }}
+      >
+        ← Back to Dashboard
+      </a>
+    </div>
+  </div>
+);
+
+
 };
 
 export default FlowChart;

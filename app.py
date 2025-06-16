@@ -5,7 +5,6 @@ from urllib.parse import unquote
 from markupsafe import escape
 from nltk.tokenize import sent_tokenize
 import re
-from urllib.parse import unquote
 
 app = Flask(__name__)
 CORS(app)
@@ -72,6 +71,7 @@ EMERGENCY_GUIDES = {
         "Collect and purify water if available; avoid eating unfamiliar plants."
     ]
 }
+
 
 @app.route("/", methods=["POST"])
 def search():
@@ -154,12 +154,13 @@ def view_file(filename):
 
     return render_template('view_snippets.html', filename=filename, query=query, snippets=[])
 
+
 @app.route("/api/flow/<path:filename>")
 def flow_json(filename):
     query = request.args.get("query", "")
     filename = unquote(filename)
-
     content = file_texts.get(filename)
+
     if not content:
         return jsonify({"error": "File not found"}), 404
 
@@ -178,24 +179,27 @@ def flow_json(filename):
             matched_snippets.append(snippet)
             idx = i + 1
 
-    # 🔍 Combine + tokenize
     combined_text = " ".join(matched_snippets)
     sentences = sent_tokenize(combined_text)
 
-    # 🎯 Extract relevant flow steps (e.g., commands, procedures)
     important_steps = []
     for s in sentences:
         s_clean = re.sub(r'\s+', ' ', s).strip()
         if len(s_clean) < 30 or len(s_clean) > 220:
-            continue  # remove too short or too long
-        if re.search(r"\b(apply|check|call|clean|cover|move|remove|perform|place|stay|protect|signal|monitor|keep|treat)\b", s_clean, re.IGNORECASE):
+            continue
+        if re.search(r"\b(apply|check|call|clean|cover|move|remove|perform|place|stay|protect|signal|monitor|keep|treat|rinse|bandage)\b", s_clean, re.IGNORECASE):
             important_steps.append(s_clean)
 
-    # ✅ Return JSON
+    # 🧹 Remove duplicates
+    unique_steps = []
+    for step in important_steps:
+        if step not in unique_steps:
+            unique_steps.append(step)
+
     return jsonify({
         "filename": filename,
         "query": query,
-        "steps": important_steps[:10]  # limit for now
+        "steps": unique_steps[:10]
     })
 
 
