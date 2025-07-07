@@ -1,6 +1,7 @@
 import os
 import re
 import math
+import pickle
 from collections import defaultdict, Counter
 from utils import parser
 
@@ -15,7 +16,17 @@ def clean_and_tokenize(text):
 # ----------------------
 # TF-IDF Indexing
 # ----------------------
-def build_tf_idf_index(data_folder='data'):
+def build_tf_idf_index(data_folder='data', cache_file='index_cache.pkl'):
+    # Try to load from cache first
+    if os.path.exists(cache_file):
+        try:
+            print("📂 Loading cached index...")
+            with open(cache_file, 'rb') as f:
+                return pickle.load(f)
+        except Exception as e:
+            print(f"⚠️ Failed to load cache: {e}. Building fresh index...")
+    
+    print("🔨 Building TF-IDF index from scratch...")
     tf_index = {}      # filename -> {word: tf}
     df_counts = {}     # word -> doc freq
     file_texts = {}    # filename -> full text
@@ -23,6 +34,7 @@ def build_tf_idf_index(data_folder='data'):
 
     for filename in os.listdir(data_folder):
         filepath = os.path.join(data_folder, filename)
+        print(f"Processing: {filename}")
         text = parser.extract_text_from_file(filepath)
         tokens = clean_and_tokenize(text)
         total_docs += 1
@@ -33,6 +45,14 @@ def build_tf_idf_index(data_folder='data'):
 
         for word in set(tokens):
             df_counts[word] = df_counts.get(word, 0) + 1
+
+    # Save to cache
+    try:
+        print("💾 Saving index to cache...")
+        with open(cache_file, 'wb') as f:
+            pickle.dump((tf_index, df_counts, total_docs, file_texts), f)
+    except Exception as e:
+        print(f"⚠️ Failed to save cache: {e}")
 
     return tf_index, df_counts, total_docs, file_texts
 

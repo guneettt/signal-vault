@@ -3,17 +3,29 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SignalVault</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+  <title>SignalVault - Emergency Information Hub</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
   <style>
     :root {
-      --bg: #f8f9fc;
-      --card: #ffffff;
-      --accent: #3b82f6;
-      --accent-hover: #2563eb;
-      --text: #1e1e1e;
-      --muted: #666;
-      --radius: 18px;
+      --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      --emergency-gradient: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+      --success-gradient: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
+      --bg-primary: #0f0f23;
+      --bg-secondary: #1a1a2e;
+      --bg-card: #16213e;
+      --bg-glass: rgba(255, 255, 255, 0.05);
+      --accent: #4c7cf3;
+      --accent-hover: #3b6de8;
+      --emergency: #ff6b6b;
+      --emergency-hover: #ff5252;
+      --text-primary: #ffffff;
+      --text-secondary: #a0a9c0;
+      --text-muted: #6c7293;
+      --border: rgba(255, 255, 255, 0.1);
+      --shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      --radius: 16px;
+      --radius-lg: 24px;
     }
 
     * {
@@ -24,202 +36,528 @@
 
     body {
       font-family: 'Inter', sans-serif;
-      background-color: var(--bg);
-      color: var(--text);
-      padding: 32px;
+      background: var(--bg-primary);
+      background-image: 
+        radial-gradient(circle at 20% 20%, rgba(76, 124, 243, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(255, 107, 107, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 40% 60%, rgba(78, 205, 196, 0.05) 0%, transparent 50%);
+      color: var(--text-primary);
+      min-height: 100vh;
+      padding: 20px;
+      overflow-x: hidden;
     }
 
-    .header {
-      font-size: 1.8rem;
-      font-weight: 600;
-      color: var(--accent);
-      margin-bottom: 24px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
     }
 
-    .header::before {
-      content: "🔍";
-      font-size: 1.4rem;
+    .hero {
+      text-align: center;
+      margin-bottom: 60px;
+      padding: 40px 0;
     }
 
-    .top-bar {
-      display: flex;
-      gap: 16px;
-      margin-bottom: 32px;
+    .hero-title {
+      font-size: clamp(2.5rem, 5vw, 4rem);
+      font-weight: 700;
+      background: var(--primary-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 16px;
+      letter-spacing: -0.02em;
     }
 
-    input[type="text"] {
-      flex: 1;
-      padding: 14px 20px;
+    .hero-subtitle {
+      font-size: 1.25rem;
+      color: var(--text-secondary);
+      font-weight: 400;
+      margin-bottom: 8px;
+    }
+
+    .hero-description {
       font-size: 1rem;
-      background-color: #ffffff;
-      color: var(--text);
-      border: 1px solid #d0d7e2;
-      border-radius: var(--radius);
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+      color: var(--text-muted);
+      max-width: 600px;
+      margin: 0 auto;
+      line-height: 1.6;
     }
 
-    button[type="submit"] {
-      background-color: var(--accent);
+    .search-section {
+      margin-bottom: 50px;
+    }
+
+    .search-container {
+      position: relative;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    .search-form {
+      display: flex;
+      gap: 12px;
+      background: var(--bg-glass);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 8px;
+      box-shadow: var(--shadow);
+    }
+
+    .search-input {
+      flex: 1;
+      padding: 16px 20px;
+      font-size: 1.1rem;
+      background: transparent;
+      color: var(--text-primary);
+      border: none;
+      border-radius: var(--radius);
+      outline: none;
+      font-weight: 400;
+    }
+
+    .search-input::placeholder {
+      color: var(--text-muted);
+    }
+
+    .search-btn {
+      background: var(--primary-gradient);
       color: white;
       font-weight: 600;
       font-size: 1rem;
       border: none;
       border-radius: var(--radius);
-      padding: 14px 24px;
+      padding: 16px 32px;
       cursor: pointer;
-      transition: background 0.2s ease;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      white-space: nowrap;
     }
 
-    button[type="submit"]:hover {
-      background-color: var(--accent-hover);
+    .search-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(76, 124, 243, 0.4);
+    }
+
+    .search-suggestions {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 20px;
+      flex-wrap: wrap;
+    }
+
+    .suggestion-chip {
+      background: var(--bg-glass);
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      backdrop-filter: blur(10px);
+    }
+
+    .suggestion-chip:hover {
+      background: var(--accent);
+      color: white;
+      transform: translateY(-1px);
+    }
+
+    .main-content {
+      display: grid;
+      grid-template-columns: 1fr 350px;
+      gap: 40px;
+      align-items: start;
+    }
+
+    .content-section {
+      min-height: 400px;
+    }
+
+    .results-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 24px;
+      padding: 20px;
+      background: var(--bg-glass);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      backdrop-filter: blur(10px);
+    }
+
+    .results-icon {
+      color: var(--accent);
+      font-size: 1.2rem;
     }
 
     .results-label {
-      font-size: 1rem;
-      margin-bottom: 16px;
-      color: var(--muted);
-    }
-
-    .layout {
-      display: flex;
-      gap: 40px;
-      align-items: flex-start;
-    }
-
-    .left-panel {
-      flex: 3;
+      font-size: 1.1rem;
+      color: var(--text-secondary);
+      margin: 0;
     }
 
     .results-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 24px;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 20px;
     }
 
-    .card {
-      background-color: var(--card);
+    .result-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
       border-radius: var(--radius);
-      padding: 20px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-      height: 260px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      border: 1px solid #e3e8f0;
-    }
-
-    .card a {
-      color: var(--accent);
-      font-weight: 600;
-      font-size: 1rem;
-      text-decoration: none;
-      margin-bottom: 6px;
-      display: inline-block;
-    }
-
-    .score {
-      font-size: 0.85rem;
-      color: var(--muted);
-      margin-bottom: 10px;
-    }
-
-    .snippet {
-      font-size: 0.92rem;
-      color: #444;
-      line-height: 1.5;
+      padding: 24px;
+      transition: all 0.3s ease;
+      position: relative;
       overflow: hidden;
-      display: -webkit-box;
-      -webkit-line-clamp: 5;
-      -webkit-box-orient: vertical;
     }
 
-    .right-panel {
-      flex: 1;
+    .result-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: var(--primary-gradient);
     }
 
-    .emergency-label {
-      font-size: 1.1rem;
-      font-weight: 600;
-      color: var(--accent);
+    .result-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+      border-color: var(--accent);
+    }
+
+    .result-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
       margin-bottom: 12px;
     }
 
-    .emergency-btns {
+    .file-icon {
+      color: var(--accent);
+      font-size: 1.1rem;
+    }
+
+    .result-title {
+      color: var(--text-primary);
+      font-weight: 600;
+      font-size: 1rem;
+      text-decoration: none;
+      flex: 1;
+    }
+
+    .result-title:hover {
+      color: var(--accent);
+    }
+
+    .result-score {
+      background: var(--bg-glass);
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      padding: 4px 8px;
+      border-radius: 8px;
+      font-weight: 500;
+    }
+
+    .result-snippet {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      line-height: 1.6;
+      display: -webkit-box;
+      -webkit-line-clamp: 4;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .emergency-panel {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      position: sticky;
+      top: 20px;
+    }
+
+    .emergency-header {
       display: flex;
-      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .emergency-icon {
+      color: var(--emergency);
+      font-size: 1.3rem;
+    }
+
+    .emergency-title {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .emergency-subtitle {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      margin-top: 4px;
+    }
+
+    .emergency-grid {
+      display: grid;
       gap: 12px;
     }
 
     .emergency-btn {
-      background-color: var(--accent);
-      border: none;
-      color: white;
-      font-size: 0.95rem;
-      padding: 10px 20px;
-      border-radius: 999px;
-      font-weight: 600;
+      background: var(--bg-glass);
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+      font-size: 0.9rem;
+      padding: 14px 18px;
+      border-radius: var(--radius);
+      font-weight: 500;
       cursor: pointer;
-      transition: background 0.2s ease;
+      transition: all 0.3s ease;
+      text-align: left;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      backdrop-filter: blur(10px);
     }
 
     .emergency-btn:hover {
-      background-color: var(--accent-hover);
+      background: var(--emergency-gradient);
+      border-color: var(--emergency);
+      color: white;
+      transform: translateX(4px);
     }
 
-    @media (max-width: 950px) {
+    .emergency-btn i {
+      font-size: 1rem;
+      width: 16px;
+    }
+
+    .welcome-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--text-muted);
+    }
+
+    .welcome-icon {
+      font-size: 4rem;
+      color: var(--accent);
+      margin-bottom: 20px;
+      opacity: 0.6;
+    }
+
+    .welcome-title {
+      font-size: 1.5rem;
+      color: var(--text-secondary);
+      margin-bottom: 12px;
+    }
+
+    .welcome-text {
+      font-size: 1rem;
+      line-height: 1.6;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+
+    @media (max-width: 1200px) {
+      .main-content {
+        grid-template-columns: 1fr;
+        gap: 30px;
+      }
+      
+      .emergency-panel {
+        position: static;
+      }
+    }
+
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+      }
+      
+      .hero {
+        margin-bottom: 40px;
+        padding: 20px 0;
+      }
+      
+      .search-form {
+        flex-direction: column;
+        gap: 12px;
+      }
+      
+      .search-btn {
+        justify-content: center;
+      }
+      
       .results-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .emergency-grid {
         grid-template-columns: repeat(2, 1fr);
       }
     }
 
-    @media (max-width: 600px) {
-      .layout {
-        flex-direction: column;
-      }
-
-      .results-grid {
+    @media (max-width: 480px) {
+      .emergency-grid {
         grid-template-columns: 1fr;
       }
+      
+      .search-suggestions {
+        gap: 8px;
+      }
     }
+
+    /* Animations */
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .result-card {
+      animation: fadeInUp 0.6s ease;
+    }
+
+    .result-card:nth-child(2) { animation-delay: 0.1s; }
+    .result-card:nth-child(3) { animation-delay: 0.2s; }
+    .result-card:nth-child(4) { animation-delay: 0.3s; }
   </style>
 </head>
 <body>
-  <h1 class="header">SignalVault</h1>
-
-  <form method="POST" class="top-bar">
-    <input type="text" name="query" placeholder="Search your cached docs..." value="{{ query|e }}" required />
-    <button type="submit">Search</button>
-  </form>
-
-  <div class="layout">
-    <div class="left-panel">
-      {% if query %}
-        <div class="results-label">Showing results for '<strong>{{ query }}</strong>'</div>
-        <div class="results-grid">
-          {% for result in results %}
-            <div class="card">
-              <div>
-                <a href="{{ url_for('view_file', filename=result.filename, query=query) }}" target="_blank">🗎 {{ result.filename }}</a>
-                <div class="score">Score: {{ result.score }}</div>
-                <div class="snippet">&gt; {{ result.snippet }}</div>
-              </div>
-            </div>
-          {% endfor %}
-        </div>
-      {% endif %}
+  <div class="container">
+    <!-- Hero Section -->
+    <div class="hero">
+      <h1 class="hero-title">SignalVault</h1>
+      <p class="hero-subtitle">Emergency Information Hub</p>
+      <p class="hero-description">Access critical survival guides, first aid manuals, and emergency protocols when you need them most. All offline, all the time.</p>
     </div>
 
-    <div class="right-panel">
-      <div class="emergency-label">Emergency Situations</div>
-      <form method="POST" class="emergency-btns">
-        {% for key in ['can\'t find water', 'earthquake', 'stuck in flood', 'unclear breathing', 'fire in building'] %}
-          <button class="emergency-btn" type="submit" name="query" value="{{ key }}">{{ key }}</button>
-        {% endfor %}
-      </form>
+    <!-- Search Section -->
+    <div class="search-section">
+      <div class="search-container">
+        <form method="POST" class="search-form">
+          <input type="text" name="query" class="search-input" placeholder="Search emergency guides, first aid, survival tips..." value="{{ query|e }}" required autocomplete="off" />
+          <button type="submit" class="search-btn">
+            <i class="fas fa-search"></i>
+            <span>Search</span>
+          </button>
+        </form>
+        
+        <div class="search-suggestions">
+          <div class="suggestion-chip" onclick="setSearch('CPR')">CPR</div>
+          <div class="suggestion-chip" onclick="setSearch('first aid')">First Aid</div>
+          <div class="suggestion-chip" onclick="setSearch('water purification')">Water Purification</div>
+          <div class="suggestion-chip" onclick="setSearch('wound care')">Wound Care</div>
+          <div class="suggestion-chip" onclick="setSearch('survival')">Survival</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <div class="content-section">
+        {% if query %}
+          <div class="results-header">
+            <i class="fas fa-search results-icon"></i>
+            <div class="results-label">Found {{ results|length }} results for "<strong>{{ query }}</strong>"</div>
+          </div>
+          
+          <div class="results-grid">
+            {% for result in results %}
+              <div class="result-card">
+                <div class="result-header">
+                  <i class="fas fa-file-pdf file-icon"></i>
+                  <a href="{{ url_for('view_file', filename=result.filename, query=query) }}" target="_blank" class="result-title">{{ result.filename }}</a>
+                  <div class="result-score">{{ result.score }}</div>
+                </div>
+                <div class="result-snippet">{{ result.snippet }}</div>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="welcome-state">
+            <div class="welcome-icon">
+              <i class="fas fa-shield-alt"></i>
+            </div>
+            <h2 class="welcome-title">Ready for Emergencies</h2>
+            <p class="welcome-text">
+              Search through comprehensive emergency guides, first aid manuals, and survival resources. 
+              Use the search bar above or click an emergency scenario to get instant help.
+            </p>
+          </div>
+        {% endif %}
+      </div>
+
+      <!-- Emergency Panel -->
+      <div class="emergency-panel">
+        <div class="emergency-header">
+          <i class="fas fa-exclamation-triangle emergency-icon"></i>
+          <div>
+            <div class="emergency-title">Quick Emergency</div>
+            <div class="emergency-subtitle">Instant access to critical help</div>
+          </div>
+        </div>
+        
+        <form method="POST" class="emergency-grid">
+          <button class="emergency-btn" type="submit" name="query" value="can't find water">
+            <i class="fas fa-tint"></i>
+            <span>No Water</span>
+          </button>
+          <button class="emergency-btn" type="submit" name="query" value="earthquake">
+            <i class="fas fa-home"></i>
+            <span>Earthquake</span>
+          </button>
+          <button class="emergency-btn" type="submit" name="query" value="stuck in flood">
+            <i class="fas fa-water"></i>
+            <span>Flood</span>
+          </button>
+          <button class="emergency-btn" type="submit" name="query" value="unclear breathing">
+            <i class="fas fa-lungs"></i>
+            <span>Breathing Issue</span>
+          </button>
+          <button class="emergency-btn" type="submit" name="query" value="fire in building">
+            <i class="fas fa-fire"></i>
+            <span>Fire</span>
+          </button>
+          <button class="emergency-btn" type="submit" name="query" value="injured with bleeding">
+            <i class="fas fa-band-aid"></i>
+            <span>Bleeding</span>
+          </button>
+        </form>
+      </div>
     </div>
   </div>
+
+  <script>
+    function setSearch(term) {
+      document.querySelector('.search-input').value = term;
+      document.querySelector('.search-form').submit();
+    }
+    
+    // Add keyboard shortcut for search
+    document.addEventListener('keydown', function(e) {
+      if (e.ctrlKey && e.key === 'k') {
+        e.preventDefault();
+        document.querySelector('.search-input').focus();
+      }
+    });
+  </script>
 </body>
 </html>
