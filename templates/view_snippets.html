@@ -1,49 +1,71 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Matches in {{ filename }}</title>
+  <meta charset="UTF-8" />
+  <title>{{ filename }} - Summary Flow</title>
   <style>
     body {
+      background: #f9fbff;
       font-family: 'Segoe UI', sans-serif;
-      background-color: #fefefe;
+      padding: 2rem;
       color: #222;
-      margin: 2rem;
     }
+
+    h1 {
+      text-align: center;
+      color: #1e40af;
+      margin-bottom: 2rem;
+    }
+
+    .flow-container {
+      max-width: 800px;
+      margin: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+
+    .flow-step {
+      background-color: #ffffff;
+      padding: 1rem 1.5rem;
+      border-left: 5px solid #3b82f6;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+      font-size: 1rem;
+      line-height: 1.5;
+    }
+
+    .flow-step::before {
+      content: "✔";
+      font-weight: bold;
+      color: #22c55e;
+      margin-right: 0.5rem;
+    }
+
     .back-link {
-      color: #1dbf73;
+      display: block;
+      text-align: center;
+      margin-top: 2rem;
       text-decoration: none;
-      display: inline-block;
-      margin-bottom: 1.2rem;
+      color: #3b82f6;
+      font-weight: 500;
     }
+
     .back-link:hover {
       text-decoration: underline;
-    }
-    .snippet-box {
-      background: #fff;
-      padding: 1rem;
-      margin-bottom: 1rem;
-      border-left: 4px solid #1dbf73;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-    }
-    .highlight {
-      background-color: #ffff66;
-      font-weight: bold;
     }
   </style>
 </head>
 <body>
-  <a href="/" class="back-link">← Back to search</a>
-  <h2>🧠 Matches in <code>{{ filename }}</code></h2>
-  <p>Results for: <strong>{{ query }}</strong></p>
+  <h1>Flow Summary: {{ filename }}</h1>
+  <div class="flow-container">
+    {% for snippet in snippets %}
+      <div class="flow-step">
+        {{ snippet | truncate(160, True, '...') }}
+      </div>
+    {% endfor %}
+  </div>
 
-  {% for snippet in snippets %}
-    <div class="snippet-box">
-      {{ snippet | replace(query, "<span class='highlight'>" ~ query ~ "</span>") | safe }}
-    </div>
-  {% endfor %}
-
-  {% if not snippets %}
-    <p>❌ No matches found in this file.</p>
-  {% endif %}
+  <a href="http://localhost:3000" class="back-link">← Back to Dashboard</a>
 </body>
 </html>
