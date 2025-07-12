@@ -3,18 +3,42 @@
 <head>
   <meta charset="UTF-8" />
   <title>{{ filename }} - Summary Flow</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
+    :root {
+      --primary: #7f5af0;
+      --accent: #2cb67d;
+      --bg: #0f0f23;
+      --card-bg: #1c1c2f;
+      --text-primary: #ffffff;
+      --text-secondary: #a0a9c0;
+      --border: rgba(255, 255, 255, 0.1);
+      --shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+      --radius: 16px;
+      --gradient-btn: linear-gradient(135deg, #7f5af0, #2cb67d);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
     body {
-      background: #f9fbff;
-      font-family: 'Segoe UI', sans-serif;
-      padding: 2rem;
-      color: #222;
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      background-image: radial-gradient(circle at 25% 30%, rgba(127, 90, 240, 0.08) 0%, transparent 50%),
+                        radial-gradient(circle at 75% 70%, rgba(44, 182, 125, 0.08) 0%, transparent 50%);
+      color: var(--text-primary);
+      padding: 40px 20px;
+      min-height: 100vh;
     }
 
     h1 {
       text-align: center;
-      color: #1e40af;
-      margin-bottom: 2rem;
+      font-size: 2rem;
+      margin-bottom: 2.5rem;
+      color: var(--primary);
     }
 
     .flow-container {
@@ -22,42 +46,67 @@
       margin: auto;
       display: flex;
       flex-direction: column;
-      gap: 2rem;
+      gap: 1.5rem;
     }
 
     .flow-step {
-      background-color: #ffffff;
-      padding: 1rem 1.5rem;
-      border-left: 5px solid #3b82f6;
-      border-radius: 10px;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+      background-color: var(--card-bg);
+      padding: 1.25rem 1.5rem;
+      border-left: 5px solid var(--accent);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
       font-size: 1rem;
-      line-height: 1.5;
+      line-height: 1.6;
+      position: relative;
+      padding-left: 2.2rem;
     }
 
     .flow-step::before {
-      content: "✔";
-      font-weight: bold;
-      color: #22c55e;
-      margin-right: 0.5rem;
+      content: "✅";
+      position: absolute;
+      left: 1rem;
+      top: 1.2rem;
+      font-size: 1.1rem;
     }
 
     .back-link {
-      display: block;
+      display: inline-block;
+      margin: 3rem auto 0;
       text-align: center;
-      margin-top: 2rem;
       text-decoration: none;
-      color: #3b82f6;
+      background: var(--gradient-btn);
+      color: white;
       font-weight: 500;
+      padding: 12px 24px;
+      border-radius: 999px;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
     }
 
     .back-link:hover {
-      text-decoration: underline;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(127, 90, 240, 0.3);
+    }
+
+    @media (max-width: 600px) {
+      body {
+        padding: 24px 16px;
+      }
+
+      h1 {
+        font-size: 1.6rem;
+      }
+
+      .flow-step {
+        font-size: 0.95rem;
+        padding-left: 2.2rem;
+      }
     }
   </style>
 </head>
 <body>
-  <h1>Flow Summary: {{ filename }}</h1>
+  <h1>📄 Flow Summary: {{ filename }}</h1>
+
   <div class="flow-container">
     {% for snippet in snippets %}
       <div class="flow-step">

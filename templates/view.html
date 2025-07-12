@@ -7,14 +7,15 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --bg-primary: #0f0f23;
-      --bg-card: #16213e;
+      --bg: #0f0f23;
+      --card: #1c1c2f;
+      --glass: rgba(255, 255, 255, 0.05);
       --text-primary: #ffffff;
       --text-secondary: #a0a9c0;
-      --text-muted: #6c7293;
       --border: rgba(255, 255, 255, 0.1);
       --accent: #4c7cf3;
       --radius: 16px;
+      --shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
     }
 
     * {
@@ -25,27 +26,35 @@
 
     body {
       font-family: 'Inter', sans-serif;
-      background: var(--bg-primary);
+      background: var(--bg);
       color: var(--text-primary);
-      padding: 20px;
-      line-height: 1.6;
+      padding: 24px;
+      line-height: 1.7;
+      min-height: 100vh;
+      background-image: 
+        radial-gradient(circle at 25% 30%, rgba(76, 124, 243, 0.08) 0%, transparent 50%),
+        radial-gradient(circle at 75% 70%, rgba(44, 182, 125, 0.08) 0%, transparent 50%);
     }
 
     .container {
-      max-width: 900px;
+      max-width: 960px;
       margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      animation: fadeInUp 0.6s ease;
     }
 
     .header {
-      background: var(--bg-card);
+      background: var(--card);
       border: 1px solid var(--border);
       border-radius: var(--radius);
       padding: 24px;
-      margin-bottom: 20px;
+      box-shadow: var(--shadow);
     }
 
     .filename {
-      font-size: 1.5rem;
+      font-size: 1.4rem;
       font-weight: 600;
       color: var(--accent);
       margin-bottom: 8px;
@@ -55,6 +64,7 @@
       color: var(--text-secondary);
       text-decoration: none;
       font-size: 0.9rem;
+      transition: color 0.2s ease;
     }
 
     .back-link:hover {
@@ -62,15 +72,39 @@
     }
 
     .content {
-      background: var(--bg-card);
+      background: var(--glass);
       border: 1px solid var(--border);
       border-radius: var(--radius);
       padding: 24px;
-      white-space: pre-wrap;
-      font-size: 0.95rem;
       color: var(--text-secondary);
-      max-height: 80vh;
+      white-space: pre-wrap;
+      font-size: 0.96rem;
+      max-height: 75vh;
       overflow-y: auto;
+      backdrop-filter: blur(10px);
+      box-shadow: var(--shadow);
+    }
+
+    @media (max-width: 768px) {
+      body {
+        padding: 16px;
+      }
+
+      .content {
+        font-size: 0.9rem;
+        max-height: 70vh;
+      }
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
   </style>
 </head>
@@ -80,7 +114,7 @@
       <div class="filename">📄 {{ filename }}</div>
       <a href="{{ url_for('home') }}" class="back-link">← Back to search</a>
     </div>
-    
+
     <div class="content">{{ content }}</div>
   </div>
 </body>
