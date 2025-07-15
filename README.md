@@ -1,5 +1,7 @@
 # SignalVault - Emergency Information Hub
 
+## ***Currently undergoing a few changes/updates.***
+
 An offline emergency information search system that provides quick access to critical survival guides, first aid manuals, and emergency protocols when internet access may be unavailable.
 
 ## Features
@@ -10,13 +12,14 @@ An offline emergency information search system that provides quick access to cri
 - **⚡ Fast Performance**: Cached indexing for instant search results
 - **📚 Comprehensive Library**: First aid manuals, survival guides, and emergency protocols
 
-## Screenshots
+## Screenshots *will be updated soon*
 
 ### Landing Page
-![Landing Page](https://via.placeholder.com/800x400/0f0f23/4c7cf3?text=Modern+Dark+Theme+UI)
+<img width="942" height="616" alt="Screenshot 2025-07-15 at 4 58 55 PM" src="https://github.com/user-attachments/assets/aaa1c941-7f3e-43d8-b13a-899b3a41a87d" />
+
 
 ### Search Results
-![Search Results](https://via.placeholder.com/800x400/16213e/ffffff?text=Enhanced+Search+Results)
+*updating
 
 ## Quick Start
 
