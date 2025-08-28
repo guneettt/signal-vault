@@ -21,7 +21,6 @@
       --emergency-hover: #ff5252;
       --text-primary: #ffffff;
       --text-secondary: #a0a9c0;
-      --text-muted: #6c7293;
       --border: rgba(255, 255, 255, 0.1);
       --shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
       --radius: 16px;
@@ -51,6 +50,10 @@
     .container {
       max-width: 1000px;
       margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      animation: fadeInUp 0.6s ease;
     }
 
     .header {
@@ -109,7 +112,7 @@
     }
 
     .content {
-      background: var(--bg-card);
+      background: var(--bg-glass);
       border: 1px solid var(--border);
       border-radius: var(--radius-lg);
       padding: 32px;
@@ -199,7 +202,7 @@
         <span>Back to SignalVault</span>
       </a>
     </div>
-    
+
     <div class="content">{{ content }}</div>
   </div>
 </body>
