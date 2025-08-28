@@ -2,45 +2,268 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Emergency Guide</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🆘 Emergency Guide - SignalVault</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
   <style>
+    :root {
+      --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      --emergency-gradient: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+      --success-gradient: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
+      --bg-primary: #0f0f23;
+      --bg-secondary: #1a1a2e;
+      --bg-card: #16213e;
+      --bg-glass: rgba(255, 255, 255, 0.05);
+      --accent: #4c7cf3;
+      --accent-hover: #3b6de8;
+      --emergency: #ff6b6b;
+      --emergency-hover: #ff5252;
+      --text-primary: #ffffff;
+      --text-secondary: #a0a9c0;
+      --text-muted: #6c7293;
+      --border: rgba(255, 255, 255, 0.1);
+      --shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      --radius: 16px;
+      --radius-lg: 24px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
     body {
       font-family: 'Inter', sans-serif;
-      background-color: #111;
-      color: #f5f5f5;
-      padding: 2rem;
+      background: var(--bg-primary);
+      background-image: 
+        radial-gradient(circle at 20% 20%, rgba(76, 124, 243, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(255, 107, 107, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 40% 60%, rgba(78, 205, 196, 0.05) 0%, transparent 50%);
+      color: var(--text-primary);
+      min-height: 100vh;
+      padding: 20px;
+      overflow-x: hidden;
     }
-    h1 {
-      color: #1dbf73;
-      font-size: 2rem;
-      margin-bottom: 1rem;
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
     }
-    ul {
-      background: #1c1c1c;
-      padding: 1rem;
-      border-radius: 14px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+
+    .header {
+      text-align: center;
+      margin-bottom: 40px;
+      padding: 40px 0 20px;
     }
-    li {
-      margin-bottom: 0.8rem;
+
+    .emergency-title {
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 700;
+      background: var(--emergency-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 16px;
+      letter-spacing: -0.02em;
+    }
+
+    .emergency-subtitle {
+      font-size: 1.1rem;
+      color: var(--text-secondary);
+      font-weight: 400;
+    }
+
+    .checklist-container {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 32px;
+      box-shadow: var(--shadow);
+      margin-bottom: 30px;
+    }
+
+    .checklist-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .checklist-icon {
+      font-size: 1.5rem;
+      color: var(--emergency);
+    }
+
+    .checklist-label {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .checklist {
+      list-style: none;
+      display: grid;
+      gap: 16px;
+    }
+
+    .checklist-item {
+      background: var(--bg-glass);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      position: relative;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+    }
+
+    .checklist-item:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(255, 107, 107, 0.2);
+      border-color: var(--emergency);
+    }
+
+    .checklist-item::before {
+      content: "✓";
+      position: absolute;
+      left: -8px;
+      top: 20px;
+      background: var(--success-gradient);
+      color: white;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.9rem;
+      box-shadow: 0 4px 12px rgba(78, 205, 196, 0.3);
+    }
+
+    .checklist-item-text {
+      font-size: 1rem;
       line-height: 1.6;
+      color: var(--text-secondary);
+      margin-left: 20px;
     }
-    a {
-      color: #1dbf73;
+
+    .navigation {
+      text-align: center;
+      margin-top: 40px;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--bg-glass);
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+      padding: 14px 24px;
+      border-radius: var(--radius);
       text-decoration: none;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
     }
-    a:hover {
-      text-decoration: underline;
+
+    .back-link:hover {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: white;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(76, 124, 243, 0.3);
     }
+
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+      }
+      
+      .header {
+        margin-bottom: 30px;
+        padding: 20px 0 15px;
+      }
+      
+      .checklist-container {
+        padding: 24px;
+      }
+      
+      .checklist-item {
+        padding: 16px;
+      }
+      
+      .checklist-item::before {
+        width: 24px;
+        height: 24px;
+        top: 16px;
+        font-size: 0.8rem;
+      }
+      
+      .checklist-item-text {
+        margin-left: 16px;
+        font-size: 0.95rem;
+      }
+    }
+
+    /* Animations */
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .checklist-item {
+      animation: fadeInUp 0.6s ease;
+    }
+
+    .checklist-item:nth-child(2) { animation-delay: 0.1s; }
+    .checklist-item:nth-child(3) { animation-delay: 0.2s; }
+    .checklist-item:nth-child(4) { animation-delay: 0.3s; }
+    .checklist-item:nth-child(5) { animation-delay: 0.4s; }
+    .checklist-item:nth-child(6) { animation-delay: 0.5s; }
   </style>
 </head>
 <body>
-  <h1>🆘 Emergency Checklist: {{ query }}</h1>
-  <ul>
-    {% for step in checklist %}
-      <li>✔️ {{ step }}</li>
-    {% endfor %}
-  </ul>
-  <p><a href="{{ url_for('home') }}">← Back to search</a></p>
+  <div class="container">
+    <!-- Header Section -->
+    <div class="header">
+      <h1 class="emergency-title">🆘 Emergency Guide</h1>
+      <p class="emergency-subtitle">{{ query.title() }}</p>
+    </div>
+
+    <!-- Checklist Container -->
+    <div class="checklist-container">
+      <div class="checklist-header">
+        <i class="fas fa-list-check checklist-icon"></i>
+        <div class="checklist-label">Emergency Action Steps</div>
+      </div>
+      
+      <ul class="checklist">
+        {% for step in checklist %}
+          <li class="checklist-item">
+            <div class="checklist-item-text">{{ step }}</div>
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <!-- Navigation -->
+    <div class="navigation">
+      <a href="{{ url_for('home') }}" class="back-link">
+        <i class="fas fa-arrow-left"></i>
+        <span>Back to SignalVault</span>
+      </a>
+    </div>
+  </div>
 </body>
 </html>
