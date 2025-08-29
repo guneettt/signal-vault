@@ -95,6 +95,44 @@ def home():
 
     return render_template('index.html', query=query, results=results)
 
+def extract_actionable_steps(content, query):
+    """Extract concise, actionable steps from document content."""
+    # Split content into sentences
+    sentences = content.replace('\n', ' ').split('.')
+    
+    # Clean and filter sentences
+    clean_sentences = []
+    for sentence in sentences:
+        sentence = sentence.strip()
+        if len(sentence) > 15 and len(sentence) < 200:  # Skip very short or very long sentences
+            clean_sentences.append(sentence)
+    
+    # Find sentences containing query keywords
+    keywords = query.lower().split()
+    relevant_sentences = []
+    
+    for sentence in clean_sentences:
+        lower_sentence = sentence.lower()
+        # Check if sentence contains any keyword and looks like an instruction
+        if any(keyword in lower_sentence for keyword in keywords):
+            # Prioritize sentences that start with action words
+            action_words = ['call', 'apply', 'use', 'place', 'remove', 'check', 'perform', 'give', 'do', 'take', 'put', 'get', 'move', 'keep', 'avoid', 'ensure', 'press', 'hold', 'wrap', 'clean', 'stop', 'start', 'turn', 'push', 'pull']
+            first_word = sentence.split()[0].lower() if sentence.split() else ''
+            
+            if first_word in action_words or any(word in lower_sentence for word in ['should', 'must', 'need to', 'important', 'immediately']):
+                relevant_sentences.append(sentence.strip() + '.')
+    
+    # Remove duplicates while preserving order
+    seen = set()
+    unique_steps = []
+    for sentence in relevant_sentences:
+        if sentence not in seen:
+            seen.add(sentence)
+            unique_steps.append(sentence)
+    
+    # Limit to 5-8 most relevant steps
+    return unique_steps[:6]
+
 # 📄 File viewer — match query snippets or full content
 @app.route('/view/<path:filename>')
 def view_file(filename):
@@ -106,26 +144,28 @@ def view_file(filename):
         return f"<h2>❌ File '{filename}' not found or unreadable.</h2>", 404
 
     if query:
-        keywords = query.lower().split()
-        words = content.split()
-        lower_words = [w.lower() for w in words]
-        matched_snippets = []
-
-        for keyword in keywords:
-            idx = 0
-            while keyword in lower_words[idx:]:
-                i = lower_words.index(keyword, idx)
-                start = max(0, i - 20)
-                end = min(len(words), i + 21)
-                snippet = ' '.join(words[start:end])
-                matched_snippets.append(snippet)
-                idx = i + 1
-
+        # Generate concise, actionable steps instead of raw snippets
+        actionable_steps = extract_actionable_steps(content, query)
+        
+        # If we don't find enough actionable steps, fall back to key sentences
+        if len(actionable_steps) < 3:
+            sentences = content.replace('\n', ' ').split('.')
+            keywords = query.lower().split()
+            
+            for sentence in sentences:
+                sentence = sentence.strip()
+                if (len(sentence) > 20 and len(sentence) < 150 and 
+                    any(keyword in sentence.lower() for keyword in keywords)):
+                    if sentence not in actionable_steps:
+                        actionable_steps.append(sentence + '.')
+                        if len(actionable_steps) >= 6:
+                            break
+        
         return render_template(
             'view_snippets.html',
             filename=filename,
             query=query,
-            snippets=matched_snippets
+            snippets=actionable_steps
         )
 
     # 🔄 Fallback — show full content if no query
